@@ -7,14 +7,26 @@
 
 #include <iomanip>
 
-StockWidget::StockWidget(ScreenManager &manager) : Widget(manager) {
+// To use this widget, define STOCK_TICKER_LIST in config.h like this:
+// Stocks for onvista are in the format: NAME@TYPE@ID@EXCHANGE
+// TYPE IS stocks, funds or crypto
+// ID is ISIN:xxx for stocks and etfs, or BTCEUR for crypto
+// EXCHANGE is GAT for Tradegate, CCD for CCData (Crypto)
+// To find the exchange code, open a stock in OnVista and check the call to "snapshot" in developer tools
+// Use "-"" for a blank tft panel and "clock" for a clock like the weather widget
+// e.g. for BASF, Vanguard FTSE All World, McDonalds and BTC/EUR:
+// #define STOCK_TICKER_LIST "BASF@stocks@ISIN:DE000BASF111@GAT,FTSE@funds@ISIN:IE00BK5BQT80@GAT,MCD@stocks@ISIN:US5801351017@GAT,clock,BTC@crypto@BTCEUR@CCD" // Choose your 5 stokcs to display on the stock tracker
+// and set
+// #define USE_ONVISTA
+
+OnvistaWidget::OnvistaWidget(ScreenManager &manager) : Widget(manager) {
     char stockList[strlen(STOCK_TICKER_LIST) + 1];
     strcpy(stockList, STOCK_TICKER_LIST);
 
     char *symbol = strtok(stockList, ",");
     m_stockCount = 0;
     do {
-        StockDataModel stockModel = StockDataModel();
+        OnvistaDataModel stockModel = OnvistaDataModel();
         stockModel.setSymbol(String(symbol));
         m_stocks[m_stockCount] = stockModel;
         m_stockCount++;
@@ -25,7 +37,7 @@ StockWidget::StockWidget(ScreenManager &manager) : Widget(manager) {
     } while (symbol = strtok(nullptr, ","));
 }
 
-void StockWidget::setup() {
+void OnvistaWidget::setup() {
     if (m_stockCount == 0) {
         Serial.println("No stock tickers available");
         return;
@@ -33,7 +45,7 @@ void StockWidget::setup() {
     m_time = GlobalTime::getInstance();
 }
 
-void StockWidget::draw(bool force) {
+void OnvistaWidget::draw(bool force) {
     for (int8_t i = 0; i < m_stockCount; i++) {
         if (m_stocks[i].isChanged() || force) {
             displayStock(i, m_stocks[i], TFT_WHITE, TFT_BLACK);
@@ -42,7 +54,7 @@ void StockWidget::draw(bool force) {
     }
 }
 
-void StockWidget::update(bool force) {
+void OnvistaWidget::update(bool force) {
     if (force || m_stockDelayPrev == 0 || (millis() - m_stockDelayPrev) >= m_stockDelay) {
         setBusy(true);
         for (int8_t i = 0; i < m_stockCount; i++) {
@@ -63,82 +75,11 @@ void StockWidget::update(bool force) {
     }
 }
 
-void StockWidget::changeMode() {
+void OnvistaWidget::changeMode() {
     update(true);
 }
 
-// void StockWidget::getStockData(StockDataModel &stock) {
-//     String httpRequestAddress = "https://api.marketdata.app/v1/stocks/quotes/" + stock.getSymbol() + "/?token=aVhwT1NWWkhIZVBRZlIwOUlHb01keWFrMEI5Ql9QM1ZIZndtay1ub0V3OD0";
-
-//     HTTPClient http;
-//     http.begin(httpRequestAddress);
-//     int httpCode = http.GET();
-
-//     if (httpCode > 0) {  // Check for the returning code
-//         String payload = http.getString();
-//         JsonDocument doc;
-//         DeserializationError error = deserializeJson(doc, payload);
-
-//         if (!error) {
-//             float currentPrice = doc["last"][0].as<float>();
-//             if (currentPrice > 0.0) {
-//                 stock.setCurrentPrice(doc["last"][0].as<float>());
-//                 stock.setPercentChange(doc["changepct"][0].as<float>());
-//                 stock.setPriceChange(doc["change"][0].as<float>());
-//                 stock.setVolume(doc["volume"][0].as<float>());
-//             } else {
-//                 Serial.println("skipping invalid data for: " + stock.getSymbol());
-//             }
-//         } else {
-//             // Handle JSON deserialization error
-//             Serial.println("deserializeJson() failed");
-//         }
-//     } else {
-//         // Handle HTTP request error
-//         Serial.printf("HTTP request failed, error: %s\n", http.errorToString(httpCode).c_str());
-//     }
-
-//     http.end();
-// }
-
-// void StockWidget::getStockData(StockDataModel &stock) {
-//     String httpRequestAddress = "https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=" + stock.getSymbol() + "&apikey=QIKIQ2X781UY3T1V";
-
-//     HTTPClient http;
-//     http.begin(httpRequestAddress);
-//     int httpCode = http.GET();
-
-//     if (httpCode > 0) {  // Check for the returning code
-//         String payload = http.getString();
-//         JsonDocument doc;
-//         DeserializationError error = deserializeJson(doc, payload);
-
-//         if (!error) {
-//             JsonObject gq = doc["Global Quote"];
-//             float currentPrice = gq["05. price"].as<float>();
-//             if (currentPrice > 0.0) {
-//                 stock.setCurrentPrice(gq["08. previous close"].as<float>());
-//                 String percChange = gq["10. change percent"].as<String>();
-//                 percChange.remove(percChange.length() - 1);                
-//                 stock.setPercentChange(percChange.toFloat()/100);
-//                 stock.setPriceChange(gq["09. change"].as<float>());
-//                 stock.setVolume(gq["06. volume"].as<float>());
-//             } else {
-//                 Serial.println("skipping invalid data for: " + stock.getSymbol());
-//             }
-//         } else {
-//             // Handle JSON deserialization error
-//             Serial.println("deserializeJson() failed");
-//         }
-//     } else {
-//         // Handle HTTP request error
-//         Serial.printf("HTTP request failed, error: %s\n", http.errorToString(httpCode).c_str());
-//     }
-
-//     http.end();
-// }
-
-void StockWidget::getStockData(StockDataModel &stock) {
+void OnvistaWidget::getStockData(OnvistaDataModel &stock) {
     if (stock.getSymbolId() == "") {
         return;
     }
@@ -168,6 +109,7 @@ void StockWidget::getStockData(StockDataModel &stock) {
         ChunkDecodingStream decodedStream(http.getStream());
 
         // Choose the right stream depending on the Transfer-Encoding header
+        // Onvista might send chunked responses
         Stream& response =
             http.header("Transfer-Encoding") == "chunked" ? decodedStream : rawStream;
 
@@ -219,7 +161,7 @@ void StockWidget::getStockData(StockDataModel &stock) {
     http.end();
 }
 
-void StockWidget::displayClock(int displayIndex, uint32_t background, uint32_t color) {
+void OnvistaWidget::displayClock(int displayIndex, uint32_t background, uint32_t color) {
     Serial.printf("displayClock at screen %d\n", displayIndex);
     m_manager.selectScreen(displayIndex);
 
@@ -258,7 +200,7 @@ void StockWidget::displayClock(int displayIndex, uint32_t background, uint32_t c
     display.drawString(":", centre, clky, 8);
 }
 
-void StockWidget::displayStock(int8_t displayIndex, StockDataModel &stock, uint32_t backgroundColor, uint32_t textColor) {
+void OnvistaWidget::displayStock(int8_t displayIndex, OnvistaDataModel &stock, uint32_t backgroundColor, uint32_t textColor) {
     Serial.println("displayStock - " + stock.getSymbol() + " ~ " + stock.getCurrentPrice());
     if (stock.getSymbol() == "clock") {
         displayClock(displayIndex, TFT_BLACK, TFT_WHITE);

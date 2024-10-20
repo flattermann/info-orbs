@@ -86,7 +86,11 @@ void setup() {
   globalTime = GlobalTime::getInstance();
 
   widgetSet->add(new ClockWidget(*sm));
+#ifdef USE_ONVISTA
+  widgetSet->add(new OnvistaWidget(*sm));
+#else
   widgetSet->add(new StockWidget(*sm));
+#endif
   widgetSet->add(new WeatherWidget(*sm));
 #ifdef WEB_DATA_WIDGET_URL
   widgetSet->add(new WebDataWidget(*sm, WEB_DATA_WIDGET_URL));

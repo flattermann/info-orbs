@@ -5,29 +5,29 @@
 
 #include <iomanip>
 
-class StockDataModel {
+class OnvistaDataModel {
    public:
-    StockDataModel();
-    StockDataModel &setSymbol(String symbol);
+    OnvistaDataModel();
+    OnvistaDataModel &setSymbol(String symbol);
     String getSymbol();
     String getSymbolType();
     String getSymbolId();
     String getExchangeCode();
-    StockDataModel &setCurrentPrice(float currentPrice);
+    OnvistaDataModel &setCurrentPrice(float currentPrice);
     float getCurrentPrice();
     String getCurrentPrice(int8_t digits);
-    StockDataModel &setVolume(float volume);
+    OnvistaDataModel &setVolume(float volume);
     float getVolume();
     String getVolume(int8_t digits);
-    StockDataModel &setPriceChange(float change);
+    OnvistaDataModel &setPriceChange(float change);
     float getPriceChange();
     String getPriceChange(int8_t digits);
-    StockDataModel &setPercentChange(float percentChange);
+    OnvistaDataModel &setPercentChange(float percentChange);
     float getPercentChange();
     String getPercentChange(int8_t digits);
 
     bool isChanged();
-    StockDataModel &setChangedStatus(bool changed);
+    OnvistaDataModel &setChangedStatus(bool changed);
 
    private:
     String m_symbol = "";
