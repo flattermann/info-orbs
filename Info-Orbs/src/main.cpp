@@ -8,7 +8,11 @@
 #include <Button.h>
 #include <globalTime.h>
 #include <config.h>
-#include <widgets/stockWidget.h>
+#ifdef USE_ONVISTA
+  #include <widgets/onvistaWidget.h>
+#else
+  #include <widgets/stockWidget.h>
+#endif
 
 TFT_eSPI tft = TFT_eSPI();
 
