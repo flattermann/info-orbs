@@ -8,10 +8,13 @@
 #include <Button.h>
 #include <globalTime.h>
 #include <config.h>
-#ifdef USE_ONVISTA
-  #include <widgets/onvistaWidget.h>
-#else
-  #include <widgets/stockWidget.h>
+#ifdef STOCK_TICKER_LIST
+  #ifdef USE_ONVISTA
+    #include <widgets/onvistaWidget.h>
+  #else
+    #include <widgets/stockWidget.h>
+  #endif
+#endif
 #endif
 
 TFT_eSPI tft = TFT_eSPI();
@@ -86,10 +89,12 @@ void setup() {
   globalTime = GlobalTime::getInstance();
 
   widgetSet->add(new ClockWidget(*sm));
-#ifdef USE_ONVISTA
-  widgetSet->add(new OnvistaWidget(*sm));
-#else
-  widgetSet->add(new StockWidget(*sm));
+#ifdef STOCK_TICKER_LIST
+  #ifdef USE_ONVISTA
+    widgetSet->add(new OnvistaWidget(*sm));
+  #else
+    widgetSet->add(new StockWidget(*sm));
+  #endif
 #endif
   widgetSet->add(new WeatherWidget(*sm));
 #ifdef WEB_DATA_WIDGET_URL
