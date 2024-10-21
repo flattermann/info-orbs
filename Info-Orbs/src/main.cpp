@@ -15,6 +15,8 @@
     #include <widgets/stockWidget.h>
   #endif
 #endif
+#ifdef PARQET_PORTFOLIO_ID
+  #include <widgets/parqetWidget.h>
 #endif
 
 TFT_eSPI tft = TFT_eSPI();
@@ -89,6 +91,9 @@ void setup() {
   globalTime = GlobalTime::getInstance();
 
   widgetSet->add(new ClockWidget(*sm));
+#ifdef PARQET_PORTFOLIO_ID
+  widgetSet->add(new ParqetWidget(*sm));
+#endif
 #ifdef STOCK_TICKER_LIST
   #ifdef USE_ONVISTA
     widgetSet->add(new OnvistaWidget(*sm));
