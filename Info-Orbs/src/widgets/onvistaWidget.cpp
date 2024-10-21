@@ -20,6 +20,7 @@
 // #define USE_ONVISTA
 
 OnvistaWidget::OnvistaWidget(ScreenManager &manager) : Widget(manager) {
+    #ifdef STOCK_TICKER_LIST
     char stockList[strlen(STOCK_TICKER_LIST) + 1];
     strcpy(stockList, STOCK_TICKER_LIST);
 
@@ -35,6 +36,7 @@ OnvistaWidget::OnvistaWidget(ScreenManager &manager) : Widget(manager) {
             break;
         }
     } while (symbol = strtok(nullptr, ","));
+    #endif
 }
 
 void OnvistaWidget::setup() {
