@@ -16,6 +16,7 @@ class WebDataWidget : public Widget {
     void update(bool force = false) override;
     void draw(bool force = false) override;
     void changeMode() override;
+    void changeModeLongpress() override;
 
    private:
     int m_lastUpdate = 0;
