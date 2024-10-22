@@ -11,6 +11,7 @@ public:
     void update(bool force = false) override;
     void draw(bool force = false) override;
     void changeMode() override;
+    void changeModeLongpress() override;
 
     bool isConnected() { return m_isConnected; }
 
