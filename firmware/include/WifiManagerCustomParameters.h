@@ -117,4 +117,33 @@ public:
     }
 };
 
+class TextParameter : public WiFiManagerParameter {
+    using WiFiManagerParameter::getValue; // make parent function private
+public:
+    TextParameter(const char *id, const char *placeholder, std::string url, const uint8_t length = 0) {
+        value = url;
+        if (url.length() == 0) {
+            // no URL
+            init(NULL, id, nullptr, 0, placeholder, WFM_LABEL_DEFAULT);
+        } else {
+            String html = "<a href='" + String(url.c_str()) + "'>" + String(placeholder) + "</a>";
+            htmlBuffer = Utils::createConstCharBuffer(html.c_str());
+            init(NULL, id, nullptr, 0, htmlBuffer, WFM_LABEL_DEFAULT);
+        }
+    }
+
+    ~TextParameter() {
+        delete[] htmlBuffer;
+    }
+
+    std::string getValue() {
+        // Return URL
+        return value;
+    }
+
+private:
+    std::string value;
+    const char *htmlBuffer;
+};
+
 #endif // WIFIMGR_CUSTOM_PARAMETERS_H

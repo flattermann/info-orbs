@@ -25,6 +25,9 @@ void ClockWidget::addConfigToManager() {
     }
     String optFormats[] = {"24h mode", "12h mode", "12h mode (with am/pm)"};
     m_config.addConfigComboBox("ClockWidget", "clockFormat", &m_format, optFormats, 3, "Clock Format");
+#if USE_CLOCK_CUSTOM > 0
+    m_config.addConfigLink("ClockWidget", "clkBrowser", "Open Clock Browser", "/browseclocks");
+#endif
     m_config.addConfigBool("ClockWidget", "showSecondTicks", &m_showSecondTicks, "Show Second Ticks", true);
     m_config.addConfigColor("ClockWidget", "clkColor", &m_fgColor, "Clock Color", true);
     m_config.addConfigBool("ClockWidget", "clkShadowing", &m_shadowing, "Clock Shadowing", true);
@@ -40,6 +43,9 @@ void ClockWidget::addConfigToManager() {
         const char *overrideDesc = Utils::createConstCharBufferAndConcat("CustomClock", String(i).c_str(), ": Override color (black=disable)");
         m_config.addConfigColor("ClockWidget", overrideKey, &m_customOverrideColor[i], overrideDesc, true);
     }
+    m_config.addConfigString("ClockWidget", "clkRepo0", &m_clockRepo0, 128, "CustomClock Repo 0", true);
+    m_config.addConfigString("ClockWidget", "clkRepo1", &m_clockRepo1, 128, "CustomClock Repo 1", true);
+    m_config.addConfigString("ClockWidget", "clkRepo2", &m_clockRepo2, 128, "CustomClock Repo 2", true);
 #endif
 }
 

@@ -113,6 +113,9 @@ private:
     int m_shadowColor = CLOCK_SHADOW_COLOR;
     bool m_shadowing = CLOCK_SHADOWING;
     int m_overrideNixieColor = CLOCK_NIXIE_COLOR;
+    std::string m_clockRepo0 = "https://raw.githubusercontent.com/flattermann/info-orbs-clocks-repo/refs/heads/dev/clock-repo.json"; // che test repo
+    std::string m_clockRepo1 = "";
+    std::string m_clockRepo2 = "";
 
     // Colors for CustomClocks
     int m_customTickColor[10]{TFT_WHITE, TFT_WHITE, TFT_WHITE, TFT_WHITE, TFT_WHITE, TFT_WHITE, TFT_WHITE, TFT_WHITE, TFT_WHITE, TFT_WHITE};

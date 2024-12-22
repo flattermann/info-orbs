@@ -15,7 +15,9 @@ enum class ParamType {
     Bool = 2,
     Float = 3,
     Color = 4,
-    ComboBox = 5
+    ComboBox = 5,
+    Text = 6,
+    Link = 7
 };
 
 // Uncomment to show debug output
@@ -39,6 +41,8 @@ public:
     void addConfigBool(const char *section, const char *varName, bool *var, const char *description, bool advanced = false);
     void addConfigColor(const char *section, const char *varName, int *var, const char *description, bool advanced = false);
     void addConfigComboBox(const char *section, const char *varName, int *var, String options[], int numOptions, const char *description, bool advanced = false);
+    void addConfigText(const char *section, const char *varName, const char *text, bool advanced = false);
+    void addConfigLink(const char *section, const char *varName, const char *text, const char *url = nullptr, bool advanced = false);
 
     // Get stored values
     std::string getConfigString(const char *varName, std::string defaultValue);

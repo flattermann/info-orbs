@@ -136,8 +136,10 @@ void ConfigManager::setupWebPortal() {
 
 void ConfigManager::saveAllConfigs() {
     for (auto &param : m_parameters) {
-        param.saveCallback(); // Save variables to preferences
-        triggerChangeCallbacks(param.section, param.variableName); // Notify listeners
+        if (param.saveCallback) {
+            param.saveCallback(); // Save variables to preferences
+            triggerChangeCallbacks(param.section, param.variableName); // Notify listeners
+        }
     }
 }
 
@@ -168,24 +170,29 @@ void ConfigManager::addConfig(ParamType paramType, const char *section, const ch
                               Args... args) {
 
     // Load value from preferences
-    loadFromPreferences(*var);
-
+    if (loadFromPreferences) {
+        loadFromPreferences(*var);
 #ifdef CM_DEBUG
-    Serial.printf("%s loaded %d (@%p)\n", varName, *var, var);
+        Serial.printf("%s loaded %d (@%p)\n", varName, *var, var);
 #endif
+    }
 
     // Create parameter with additional arguments if needed
     ParameterType *param = new ParameterType(varName, description, args..., *var, length);
 
     auto saveLambda = [this, section, varName, var, param, setParameterValue, saveToPreferences]() {
         // Set parameter value
-        setParameterValue(param, *var);
-        // Save to preferences
-        saveToPreferences(*var);
+        if (setParameterValue) {
+            setParameterValue(param, *var);
+        }
+        if (saveToPreferences) {
+            // Save to preferences
+            saveToPreferences(*var);
 #ifdef CM_DEBUG
-        // Debugging output
-        Serial.printf("%s saved %d (@%p)\n", varName, *var, var);
+            // Debugging output
+            Serial.printf("%s saved %d (@%p)\n", varName, *var, var);
 #endif
+        }
     };
 
     m_parameters.push_back({param, paramType, section, varName, advanced, saveLambda});
@@ -239,6 +246,26 @@ void ConfigManager::addConfigComboBox(const char *section, const char *varName, 
         [this, varName](int &var) { m_preferences.putInt(varName, var); },
         options, // Pass options array
         numOptions // Pass number of options
+    );
+}
+
+void ConfigManager::addConfigText(const char *section, const char *varName, const char *text, bool advanced) {
+    std::string value = "";
+    addConfig<std::string, TextParameter>(
+        ParamType::Text, section, varName, &value, text, 0, advanced,
+        nullptr, // no pref getter
+        nullptr, // no var getter
+        nullptr // no pref setter
+    );
+}
+
+void ConfigManager::addConfigLink(const char *section, const char *varName, const char *text, const char *url, bool advanced) {
+    std::string value = url ? url : ""; // Handle nullptr
+    addConfig<std::string, TextParameter>(
+        ParamType::Link, section, varName, &value, text, 0, advanced,
+        nullptr, // no pref getter
+        nullptr, // no var getter
+        nullptr // no pref setter
     );
 }
 
